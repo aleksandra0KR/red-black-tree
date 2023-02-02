@@ -1,4 +1,5 @@
 #include <iostream>
+
 struct Node{
     int data;
     unsigned char color;
@@ -12,37 +13,57 @@ struct Node{
         color = c;
     }
 };
+
 class Red_Black_tree{
-private:
-    Node* root;
+
 public:
-    void insert();
+    Node* root = nullptr;
     void leftRotation(Node*);
     void rightRotation(Node*);
     void fixcolors(Node*);
-
-
+    void insert(int, Node*);
 
 };
 
-void Red_Black_tree::leftRotation(Node* root){
-    Node *p = root->rightchild;
-     p->parent = root->parent;
-    if (p->leftchild != nullptr) p->leftchild->parent = root;
-    root->rightchild = p->leftchild;
-    root->parent = p;
-    p->leftchild = root;
-    p->parent = nullptr;
+void Red_Black_tree::leftRotation(Node* r){
+    Node *p = r->rightchild;
+    if (r->parent != nullptr) p->parent = r->parent;
+    if (r->parent == nullptr){
+        root = p;
+        p->parent = nullptr;
+    }
+    else
+    {
+        if(r==r->parent->leftchild)
+            r->parent->leftchild=p;
+        else
+            r->parent->rightchild=p;
+    }
+    if (p->leftchild != nullptr) p->leftchild->parent = r;
+    r->rightchild = p->leftchild;
+    r->parent = p;
+    p->leftchild = r;
     return;
 }
 
-void Red_Black_tree::rightRotation(Node* root){
-    Node *p = root->leftchild;
-    p->parent = root->parent;
-    if (p->rightchild != nullptr) p->rightchild->parent = root;
-    root->leftchild = p->rightchild;
-    root->parent = p;
-    p->rightchild = root;
+void Red_Black_tree::rightRotation(Node* r){
+    Node *p = r->leftchild;
+    if (r->parent != nullptr) p->parent = r->parent;
+    if (r->parent == nullptr){
+        root = p;
+        p->parent = nullptr;
+    }
+    else
+    {
+        if(r==r->parent->leftchild)
+            r->parent->leftchild = p;
+        else
+            r->parent->rightchild = p;
+    }
+    if (p->rightchild != nullptr) p->rightchild->parent = r;
+    r->leftchild = p->rightchild;
+    p->rightchild = r;
+    r->parent = p;
     return;
 }
 
@@ -70,10 +91,8 @@ void Red_Black_tree::fixcolors(Node* temp){ // takes inserted node
                     temp->parent->color = 'B';
                     temp->parent->parent->color = 'R';
                     if(temp->parent->rightchild != nullptr and temp->parent->rightchild == temp){
-                        temp->parent->parent->leftchild = leftRotation(temp->parent);
+                        leftRotation(temp->parent);
                     }
-                    if (temp->parent->parent->parent != nullptr) {
-                        (temp->parent->parent->parent->leftchild) = rightRotation(temp->parent->parent);}
                     rightRotation(temp->parent->parent);
                     //rightRotation(temp->parent->parent);
 
@@ -94,10 +113,9 @@ void Red_Black_tree::fixcolors(Node* temp){ // takes inserted node
                     temp->color = 'R';
                     temp->parent->color = 'B';
                     temp->parent->parent->color = 'R';
-                    if(temp->parent->rightchild != nullptr and temp->parent->rightchild == temp){
+                    if(temp->parent->leftchild != nullptr and temp->parent->leftchild == temp){
                         rightRotation(temp->parent);
                     }
-                    if (temp->parent->parent->parent != nullptr) leftRotation(temp->parent->parent);
                     leftRotation(temp->parent->parent);
 
                 }
@@ -126,20 +144,20 @@ void Red_Black_tree::fixcolors(Node* temp){ // takes inserted node
     return root;
 }*/
 
-Node* insert(Node *root, int number, Node* par){
+void Red_Black_tree::insert(int number, Node* par){
     Node *p,*q;
     Node *t=new Node(nullptr,number,'R');
     p=root;
-    q=NULL;
-    if(root==NULL)
+    q= nullptr;
+    if(root== nullptr)
     {
         root=t;
         root->color = 'B';
-        return root;
+        return;
     }
     else
     {
-        while(p!=NULL)
+        while(p!= nullptr)
         {
             q=p;
             if(p->data < t->data)
@@ -153,20 +171,20 @@ Node* insert(Node *root, int number, Node* par){
         else
             q->leftchild=t;
     }
-    root = fixcolors(t, root);
+    fixcolors(t);
 
-    return root;
+    return;
 }
 
 int main(){
-    Node* tree = nullptr;
+    Red_Black_tree tree;
     char commant;
     int number = 0;
     std::cin >> commant;
     while (commant != 's'){
         if (commant == 'a'){
             std::cin >> number;
-            tree = insert(tree, number, nullptr);
+            tree.insert(number, nullptr);
         }
         std::cin >> commant;
     }

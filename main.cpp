@@ -73,6 +73,7 @@ void Red_Black_tree::fixdelblack(Node* r){
 
     char siblingpos;
     Node* sibling = nullptr;
+    if (r == nullptr) return;
     if (r->parent->leftchild != nullptr and r->parent->leftchild == r) {
         sibling = r->parent->rightchild;
         siblingpos = 'R';
@@ -81,69 +82,69 @@ void Red_Black_tree::fixdelblack(Node* r){
         sibling = r->parent->leftchild;
         siblingpos = 'L';
     }
-
+    // No sibiling
     if (sibling == nullptr) {
 
-        // No sibiling, double black pushed up
         fixdelblack(r->parent);
 
     }
+
+    // Sibling is red
     else {
 
         if (sibling->color == 'R') {
-            // Sibling red
             r->parent->color = 'R';
             sibling->color = 'B';
 
+            // sibling is a left child
             if (siblingpos == 'L') {
-                // left case
                 rightRotation(r->parent);
             }
+
+            // sibling is a right child
             else {
-                // right case
                 leftRotation(r->parent);
             }
 
             fixdelblack(r);
         }
+
+        // Sibling  is black
         else {
-            // Sibling black
+            // at least 1 red children
             if ((sibling->leftchild != nullptr and sibling->leftchild->color == 'R') or (sibling->rightchild != nullptr and sibling->rightchild->color == 'R')) {
-                // at least 1 red children
                 if (sibling->leftchild!= nullptr and sibling->leftchild->color == 'R') {
                     if (siblingpos == 'L') {
 
-                        // left left
                         sibling->leftchild->color = sibling->color;
                         sibling->color = r->parent->color;
                         rightRotation(r->parent);
 
                     }
                     else {
-                        // right left
+
                         sibling->leftchild->color = r->parent->color;
                         rightRotation(sibling);
                         leftRotation(r->parent);
                     }
                 }
+
                 else {
                     if (siblingpos == 'L') {
-                        // left right
                         sibling->rightchild->color = r->parent->color;
                         leftRotation(sibling);
                         rightRotation(r->parent);
                     }
                     else {
-
-                        // right right
                         sibling->rightchild->color = sibling->color;
                         sibling->color = r->parent->color;
                         leftRotation(r->parent);
                     }
                 }
                 r->parent->color = 'B';
-            } else {
-                // 2 black children
+            }
+            // 2 black children
+            else {
                 sibling->color = 'R';
                 if (r->parent->color == 'B')
                     fixdelblack(r->parent);
@@ -173,24 +174,35 @@ void Red_Black_tree::del(Node* deletednode){
             Node* par = deletednode->parent;
             delete par->leftchild;
             par->leftchild = nullptr;
+            if (par->rightchild != nullptr) par->rightchild->color = 'R';
             return;
         }
         else {
-            //delete deletednode->parent->rightchild;
-            deletednode->parent->rightchild = NULL;
+            Node* par = deletednode->parent;
+            delete par->rightchild;
+            par->rightchild = nullptr;
+            if (par->leftchild != nullptr) par->leftchild->color = 'R';
             return;
         }
     }
+
+    // black leaf
     else if (deletednode->rightchild == nullptr and deletednode->leftchild == nullptr){
         if (deletednode->parent->leftchild != nullptr and deletednode->parent->leftchild == deletednode){
-            if (deletednode->parent->rightchild != nullptr) deletednode->parent->rightchild->color == 'R';
-            deletednode->parent->leftchild == nullptr;
+            //if (deletednode->parent->rightchild != nullptr) deletednode->parent->rightchild->color = 'R';
+            fixdelblack(deletednode);
+            deletednode->parent->leftchild = nullptr;
+            delete deletednode;
+
         }
         else{
-            if (deletednode->parent->leftchild != nullptr) deletednode->parent->leftchild->color == 'R';
-            deletednode->parent->rightchild == nullptr;
+            //if (deletednode->parent->leftchild != nullptr) deletednode->parent->leftchild->color = 'R';
+            fixdelblack(deletednode);
+            deletednode->parent->rightchild = nullptr;
+            delete deletednode;
+
         }
-        //delete deletednode;
+
     }
 
     // if it has only one child
